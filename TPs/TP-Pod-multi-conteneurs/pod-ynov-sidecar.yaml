@@ -1,0 +1,32 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: ynov-pod
+spec:
+  volumes:
+    - name: web-content
+      emptyDir: {}
+
+  containers:
+    - name: writer
+      image: busybox
+      volumeMounts:
+        - name: web-content
+          mountPath: /data
+      command:
+        - sh
+        - -c
+        - |
+          while true; do
+            echo "$(date) - Je suis à Ynov Croix" > /data/index.html
+            echo "écriture faite"
+            sleep 3
+          done
+
+    - name: nginx
+      image: nginx:1.25
+      ports:
+        - containerPort: 80
+      volumeMounts:
+        - name: web-content
+          mountPath: /usr/share/nginx/html
