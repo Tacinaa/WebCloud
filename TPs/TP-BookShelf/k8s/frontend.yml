@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: frontend-dep
+  namespace: bookshelf-ns
 spec:
   replicas: 1
   selector:
@@ -23,6 +24,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: frontend-service
+  namespace: bookshelf-ns
 spec:
   type: NodePort
   selector:

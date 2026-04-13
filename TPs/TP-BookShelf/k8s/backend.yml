@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: backend-dep
+  namespace: bookshelf-ns
 spec:
   replicas: 1
   selector:
@@ -18,22 +19,26 @@ spec:
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 3001
+        envFrom:
+        - configMapRef:
+            name: backend-config
         env:
-        - name: DB_HOST
-          value: "postgres-service"
-        - name: DB_PORT
-          value: "5432"
-        - name: DB_NAME
-          value: "bookshelf"
         - name: DB_USER
-          value: "postgres"
+          valueFrom:
+            secretKeyRef:
+              name: db-secret
+              key: DB_USER
         - name: DB_PASSWORD
-          value: "postgres"
+          valueFrom:
+            secretKeyRef:
+              name: db-secret
+              key: DB_PASSWORD
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: backend-service
+  namespace: bookshelf-ns
 spec:
   selector:
     app: backend
