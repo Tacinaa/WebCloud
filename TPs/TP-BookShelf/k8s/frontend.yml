@@ -15,7 +15,7 @@ spec:
       containers:
       - name: frontend
         image: tp-frontend:latest
-        imagePullPolicy: Always
+        imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 80
 ---
