@@ -1,0 +1,21 @@
+services:
+  s3-manager:
+    build: .
+    container_name: s3-manager
+    ports:
+      - "5001:5000"
+    environment:
+      # ⚠️  Ne jamais committer ces valeurs — utiliser un .env
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - AWS_REGION=${AWS_REGION:-eu-west-3}
+      - S3_BUCKET_NAME=${S3_BUCKET_NAME}
+      - SECRET_KEY=${SECRET_KEY:-change-me-please}
+      - FLASK_DEBUG=${FLASK_DEBUG:-false}
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s

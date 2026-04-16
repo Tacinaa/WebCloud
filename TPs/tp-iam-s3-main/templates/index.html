@@ -1,0 +1,890 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>S3 Manager — Utopios</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0a0e1a;
+            --surface: #111827;
+            --surface2: #1a2236;
+            --border: #1e2d47;
+            --blue: #0057B8;
+            --blue-light: #1a7fe8;
+            --blue-glow: rgba(0, 87, 184, 0.3);
+            --accent: #00c8ff;
+            --danger: #ff4757;
+            --danger-dim: rgba(255, 71, 87, 0.15);
+            --success: #2ecc71;
+            --success-dim: rgba(46, 204, 113, 0.12);
+            --warning: #f39c12;
+            --text: #e2e8f0;
+            --text-muted: #64748b;
+            --text-dim: #94a3b8;
+            --mono: 'JetBrains Mono', monospace;
+            --sans: 'Syne', sans-serif;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: var(--sans);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Grid background */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(0,87,184,0.04) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0,87,184,0.04) 1px, transparent 1px);
+            background-size: 40px 40px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* Top glow */
+        body::after {
+            content: '';
+            position: fixed;
+            top: -200px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 800px;
+            height: 400px;
+            background: radial-gradient(ellipse, rgba(0,87,184,0.2) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 24px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Header */
+        header {
+            border-bottom: 1px solid var(--border);
+            padding: 20px 0;
+            position: sticky;
+            top: 0;
+            background: rgba(10, 14, 26, 0.92);
+            backdrop-filter: blur(16px);
+            z-index: 100;
+        }
+
+        .header-inner {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-mark {
+            width: 36px;
+            height: 36px;
+            background: var(--blue);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            font-weight: 800;
+            color: white;
+            font-family: var(--mono);
+        }
+
+        .logo-text {
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+
+        .logo-text span {
+            color: var(--accent);
+        }
+
+        .header-meta {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .badge {
+            font-family: var(--mono);
+            font-size: 11px;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+
+        .badge-region {
+            background: var(--surface2);
+            color: var(--text-dim);
+            border: 1px solid var(--border);
+        }
+
+        .badge-bucket {
+            background: rgba(0,87,184,0.15);
+            color: var(--accent);
+            border: 1px solid rgba(0,87,184,0.3);
+        }
+
+        /* Main content */
+        main { padding: 40px 0 80px; }
+
+        /* Stats bar */
+        .stats-bar {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .stat-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .stat-label {
+            font-family: var(--mono);
+            font-size: 11px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+        }
+
+        .stat-value.blue { color: var(--accent); }
+        .stat-value.green { color: var(--success); }
+        .stat-value.red { color: var(--danger); }
+
+        /* Section titles */
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+
+        .section-title {
+            font-size: 13px;
+            font-weight: 700;
+            font-family: var(--mono);
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .section-title::before {
+            content: '';
+            display: inline-block;
+            width: 3px;
+            height: 14px;
+            background: var(--blue);
+            border-radius: 2px;
+        }
+
+        /* Upload zone */
+        .upload-zone {
+            background: var(--surface);
+            border: 2px dashed var(--border);
+            border-radius: 16px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-bottom: 32px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .upload-zone:hover, .upload-zone.drag-over {
+            border-color: var(--blue);
+            background: rgba(0,87,184,0.06);
+        }
+
+        .upload-zone.drag-over {
+            box-shadow: 0 0 0 4px var(--blue-glow);
+        }
+
+        .upload-icon {
+            font-size: 40px;
+            margin-bottom: 12px;
+        }
+
+        .upload-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+
+        .upload-sub {
+            font-size: 13px;
+            color: var(--text-muted);
+            font-family: var(--mono);
+        }
+
+        #fileInput { display: none; }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-family: var(--sans);
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            border: none;
+            transition: all 0.15s ease;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: var(--blue);
+            color: white;
+            margin-top: 16px;
+        }
+
+        .btn-primary:hover {
+            background: var(--blue-light);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 20px var(--blue-glow);
+        }
+
+        .btn-sm {
+            padding: 7px 14px;
+            font-size: 12px;
+            border-radius: 6px;
+        }
+
+        .btn-ghost {
+            background: transparent;
+            color: var(--text-dim);
+            border: 1px solid var(--border);
+        }
+
+        .btn-ghost:hover {
+            background: var(--surface2);
+            color: var(--text);
+        }
+
+        .btn-danger {
+            background: var(--danger-dim);
+            color: var(--danger);
+            border: 1px solid rgba(255,71,87,0.2);
+        }
+
+        .btn-danger:hover {
+            background: rgba(255,71,87,0.25);
+            box-shadow: 0 0 0 2px rgba(255,71,87,0.15);
+        }
+
+        /* Progress bar */
+        .upload-progress {
+            display: none;
+            margin-top: 16px;
+        }
+
+        .progress-bar-bg {
+            background: var(--surface2);
+            border-radius: 100px;
+            height: 6px;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--blue), var(--accent));
+            border-radius: 100px;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        /* File table */
+        .files-panel {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            overflow: hidden;
+        }
+
+        .files-toolbar {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .search-input {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 8px 14px;
+            color: var(--text);
+            font-family: var(--mono);
+            font-size: 13px;
+            outline: none;
+            width: 240px;
+            transition: border-color 0.2s;
+        }
+
+        .search-input:focus {
+            border-color: var(--blue);
+        }
+
+        .search-input::placeholder { color: var(--text-muted); }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead tr {
+            border-bottom: 1px solid var(--border);
+        }
+
+        th {
+            padding: 12px 20px;
+            text-align: left;
+            font-family: var(--mono);
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        td {
+            padding: 14px 20px;
+            font-size: 14px;
+            border-bottom: 1px solid rgba(30,45,71,0.5);
+            vertical-align: middle;
+        }
+
+        tr:last-child td { border-bottom: none; }
+
+        tbody tr {
+            transition: background 0.1s;
+        }
+
+        tbody tr:hover { background: rgba(255,255,255,0.02); }
+
+        .file-name {
+            font-family: var(--mono);
+            font-weight: 600;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .file-ext {
+            display: inline-block;
+            background: rgba(0,87,184,0.15);
+            color: var(--accent);
+            border-radius: 4px;
+            padding: 2px 7px;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .file-size {
+            font-family: var(--mono);
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .file-date {
+            font-family: var(--mono);
+            font-size: 12px;
+            color: var(--text-dim);
+        }
+
+        .actions { display: flex; gap: 8px; justify-content: flex-end; }
+
+        /* Permission badge */
+        .perm-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-family: var(--mono);
+            font-size: 10px;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+
+        .perm-allowed {
+            background: var(--success-dim);
+            color: var(--success);
+            border: 1px solid rgba(46,204,113,0.2);
+        }
+
+        .perm-denied {
+            background: var(--danger-dim);
+            color: var(--danger);
+            border: 1px solid rgba(255,71,87,0.2);
+        }
+
+        /* Empty state */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .empty-icon { font-size: 48px; margin-bottom: 16px; }
+
+        .empty-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .empty-sub {
+            font-size: 14px;
+            color: var(--text-muted);
+            font-family: var(--mono);
+        }
+
+        /* Toast notifications */
+        #toast-container {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 1000;
+        }
+
+        .toast {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 14px 18px;
+            font-size: 14px;
+            max-width: 380px;
+            animation: slideIn 0.3s ease;
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+        }
+
+        .toast.success { border-color: rgba(46,204,113,0.3); }
+        .toast.error { border-color: rgba(255,71,87,0.3); }
+        .toast.warning { border-color: rgba(243,156,18,0.3); }
+
+        .toast-icon { font-size: 18px; flex-shrink: 0; }
+        .toast-body { flex: 1; }
+        .toast-title { font-weight: 700; margin-bottom: 2px; }
+        .toast-msg { font-size: 12px; color: var(--text-muted); font-family: var(--mono); line-height: 1.5; }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        /* IAM Policy panel */
+        .iam-panel {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 24px;
+            margin-top: 32px;
+        }
+
+        .policy-code {
+            background: #070b14;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 20px;
+            font-family: var(--mono);
+            font-size: 12px;
+            line-height: 1.7;
+            color: #a8b8d8;
+            overflow-x: auto;
+            margin-top: 16px;
+        }
+
+        .json-key { color: #7dd3fc; }
+        .json-str { color: #86efac; }
+        .json-val { color: #fbbf24; }
+
+        /* Spinner */
+        .spinner {
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255,255,255,0.2);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+            display: inline-block;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .loading-row td {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-muted);
+            font-family: var(--mono);
+            font-size: 13px;
+        }
+
+        /* Permissions legend */
+        .perms-legend {
+            display: flex;
+            gap: 16px;
+            margin-top: 4px;
+        }
+
+        @media (max-width: 768px) {
+            .stats-bar { grid-template-columns: 1fr; }
+            .header-meta { display: none; }
+            th:nth-child(3), td:nth-child(3) { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="container">
+        <div class="header-inner">
+            <div class="logo">
+                <div class="logo-mark">S3</div>
+                <div class="logo-text">S3 <span>Manager</span></div>
+            </div>
+            <div class="header-meta">
+                <span class="badge badge-region">🌍 {{ region }}</span>
+                <span class="badge badge-bucket">🪣 {{ bucket }}</span>
+            </div>
+        </div>
+    </div>
+</header>
+
+<main>
+    <div class="container">
+
+        <!-- Stats -->
+        <div class="stats-bar">
+            <div class="stat-card">
+                <span class="stat-label">Fichiers stockés</span>
+                <span class="stat-value blue" id="stat-count">—</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-label">Droits accordés</span>
+                <div class="perms-legend">
+                    <span class="perm-badge perm-allowed">✓ Lecture</span>
+                    <span class="perm-badge perm-allowed">✓ Écriture</span>
+                    <span class="perm-badge perm-denied">✗ Suppression</span>
+                </div>
+            </div>
+            <div class="stat-card">
+                <span class="stat-label">Statut connexion</span>
+                <span class="stat-value" id="stat-status" style="font-size:18px; color: var(--text-muted)">Vérification…</span>
+            </div>
+        </div>
+
+        <!-- Upload -->
+        <div class="section-header">
+            <span class="section-title">Upload</span>
+        </div>
+
+        <div class="upload-zone" id="uploadZone">
+            <input type="file" id="fileInput" multiple>
+            <div class="upload-icon">📤</div>
+            <div class="upload-title">Glisser-déposer vos fichiers ici</div>
+            <div class="upload-sub">ou cliquer pour sélectionner</div>
+            <button class="btn btn-primary" onclick="document.getElementById('fileInput').click()">
+                Choisir des fichiers
+            </button>
+            <div class="upload-progress" id="uploadProgress">
+                <div class="progress-bar-bg">
+                    <div class="progress-bar-fill" id="progressFill"></div>
+                </div>
+                <div style="font-size:12px; color:var(--text-muted); margin-top:8px; font-family:var(--mono)" id="progressLabel">Envoi en cours…</div>
+            </div>
+        </div>
+
+        <!-- Files list -->
+        <div class="section-header">
+            <span class="section-title">Fichiers</span>
+            <button class="btn btn-ghost btn-sm" onclick="loadFiles()">↻ Actualiser</button>
+        </div>
+
+        <div class="files-panel">
+            <div class="files-toolbar">
+                <input class="search-input" id="searchInput" type="text" placeholder="Rechercher…" oninput="filterFiles()">
+                <span style="font-family:var(--mono);font-size:12px;color:var(--text-muted)" id="file-count-label"></span>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Fichier</th>
+                        <th>Taille</th>
+                        <th>Dernière modification</th>
+                        <th style="text-align:right">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="filesTableBody">
+                    <tr class="loading-row">
+                        <td colspan="4">
+                            <span class="spinner"></span>
+                            &nbsp; Chargement des fichiers…
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- IAM Policy panel -->
+        <div class="iam-panel">
+            <div class="section-title" style="margin-bottom:8px">Politique IAM appliquée</div>
+            <p style="font-size:13px; color:var(--text-muted); margin-top:8px; font-family:var(--mono); line-height:1.6">
+                Le compte de service dispose uniquement de <code style="color:var(--success)">s3:GetObject</code>,
+                <code style="color:var(--success)">s3:PutObject</code> et <code style="color:var(--success)">s3:ListBucket</code>.
+                La permission <code style="color:var(--danger)">s3:DeleteObject</code> est volontairement absente —
+                toute tentative de suppression retournera une erreur <code style="color:var(--warning)">AccessDenied (403)</code>.
+            </p>
+            <div class="policy-code">
+<span class="json-key">{</span><br>
+&nbsp;&nbsp;<span class="json-key">"Version"</span>: <span class="json-str">"2012-10-17"</span>,<br>
+&nbsp;&nbsp;<span class="json-key">"Statement"</span>: [<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="json-key">{</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="json-key">"Sid"</span>: <span class="json-str">"AllowReadWrite"</span>,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="json-key">"Effect"</span>: <span class="json-str">"Allow"</span>,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="json-key">"Action"</span>: [<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="json-str">"s3:GetObject"</span>,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="json-str">"s3:PutObject"</span>,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="json-str">"s3:ListBucket"</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:var(--danger)">// s3:DeleteObject — ABSENT</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;],<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="json-key">"Resource"</span>: [<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="json-str">"arn:aws:s3:::{{ bucket }}"</span>,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="json-str">"arn:aws:s3:::{{ bucket }}/*"</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;]<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="json-key">}</span><br>
+&nbsp;&nbsp;]<br>
+<span class="json-key">}</span>
+            </div>
+        </div>
+
+    </div>
+</main>
+
+<div id="toast-container"></div>
+
+<script>
+let allFiles = [];
+
+// ── Toast ──────────────────────────────────────────────────────
+function toast(type, title, msg, duration = 5000) {
+    const icons = { success: '✅', error: '❌', warning: '⚠️', info: 'ℹ️' };
+    const el = document.createElement('div');
+    el.className = `toast ${type}`;
+    el.innerHTML = `
+        <span class="toast-icon">${icons[type] || 'ℹ️'}</span>
+        <div class="toast-body">
+            <div class="toast-title">${title}</div>
+            ${msg ? `<div class="toast-msg">${msg}</div>` : ''}
+        </div>`;
+    document.getElementById('toast-container').appendChild(el);
+    setTimeout(() => { el.style.opacity = '0'; el.style.transition = 'opacity 0.3s'; setTimeout(() => el.remove(), 300); }, duration);
+}
+
+// ── Load files ─────────────────────────────────────────────────
+async function loadFiles() {
+    document.getElementById('filesTableBody').innerHTML = `
+        <tr class="loading-row"><td colspan="4"><span class="spinner"></span>&nbsp; Chargement…</td></tr>`;
+    try {
+        const r = await fetch('/api/files');
+        const data = await r.json();
+        if (!data.success) throw new Error(data.error);
+        allFiles = data.files;
+        document.getElementById('stat-count').textContent = data.count;
+        document.getElementById('stat-status').textContent = '🟢 Connecté';
+        document.getElementById('stat-status').style.color = 'var(--success)';
+        renderFiles(allFiles);
+    } catch(e) {
+        document.getElementById('stat-status').textContent = '🔴 Erreur';
+        document.getElementById('stat-status').style.color = 'var(--danger)';
+        document.getElementById('filesTableBody').innerHTML = `
+            <tr class="loading-row"><td colspan="4" style="color:var(--danger)">❌ ${e.message}</td></tr>`;
+        toast('error', 'Erreur de connexion', e.message);
+    }
+}
+
+// ── Render files ───────────────────────────────────────────────
+function renderFiles(files) {
+    const tbody = document.getElementById('filesTableBody');
+    document.getElementById('file-count-label').textContent = `${files.length} fichier(s)`;
+
+    if (files.length === 0) {
+        tbody.innerHTML = `
+            <tr><td colspan="4">
+                <div class="empty-state">
+                    <div class="empty-icon">🪣</div>
+                    <div class="empty-title">Bucket vide</div>
+                    <div class="empty-sub">Uploadez votre premier fichier ci-dessus</div>
+                </div>
+            </td></tr>`;
+        return;
+    }
+
+    tbody.innerHTML = files.map(f => {
+        const ext = f.name.split('.').pop().toUpperCase();
+        return `
+        <tr>
+            <td>
+                <div class="file-name">
+                    <span class="file-ext">${ext}</span>
+                    ${f.name}
+                </div>
+            </td>
+            <td><span class="file-size">${f.size}</span></td>
+            <td><span class="file-date">${f.last_modified}</span></td>
+            <td>
+                <div class="actions">
+                    <button class="btn btn-ghost btn-sm" onclick="downloadFile('${f.key}', '${f.name}')">⬇ Télécharger</button>
+                    <button class="btn btn-danger btn-sm" onclick="deleteFile('${f.key}', '${f.name}')" title="Suppression refusée — droits insuffisants">🗑 Supprimer</button>
+                </div>
+            </td>
+        </tr>`;
+    }).join('');
+}
+
+// ── Filter ─────────────────────────────────────────────────────
+function filterFiles() {
+    const q = document.getElementById('searchInput').value.toLowerCase();
+    renderFiles(q ? allFiles.filter(f => f.name.toLowerCase().includes(q)) : allFiles);
+}
+
+// ── Upload ─────────────────────────────────────────────────────
+async function uploadFiles(files) {
+    if (!files.length) return;
+    const progress = document.getElementById('uploadProgress');
+    const fill = document.getElementById('progressFill');
+    const label = document.getElementById('progressLabel');
+    progress.style.display = 'block';
+
+    for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        label.textContent = `Envoi de "${file.name}"… (${i+1}/${files.length})`;
+        fill.style.width = ((i / files.length) * 100) + '%';
+
+        const fd = new FormData();
+        fd.append('file', file);
+        try {
+            const r = await fetch('/api/upload', { method: 'POST', body: fd });
+            const data = await r.json();
+            if (data.success) {
+                toast('success', 'Upload réussi', `"${file.name}" a été envoyé vers S3.`);
+            } else {
+                toast('error', 'Échec upload', data.error);
+            }
+        } catch(e) {
+            toast('error', 'Erreur réseau', e.message);
+        }
+    }
+
+    fill.style.width = '100%';
+    label.textContent = 'Terminé !';
+    setTimeout(() => { progress.style.display = 'none'; fill.style.width = '0%'; }, 1500);
+    loadFiles();
+}
+
+// ── Download ───────────────────────────────────────────────────
+async function downloadFile(key, name) {
+    try {
+        const r = await fetch(`/api/download/${encodeURIComponent(key)}`);
+        const data = await r.json();
+        if (data.success) {
+            const a = document.createElement('a');
+            a.href = data.url;
+            a.download = name;
+            a.click();
+            toast('info', 'Téléchargement', `Lien valide 5 minutes pour "${name}"`);
+        } else {
+            toast('error', 'Erreur', data.error);
+        }
+    } catch(e) {
+        toast('error', 'Erreur réseau', e.message);
+    }
+}
+
+// ── Delete (will fail — no permission) ────────────────────────
+async function deleteFile(key, name) {
+    toast('warning', 'Tentative de suppression…', `Requête DELETE envoyée pour "${name}"`);
+    try {
+        const r = await fetch(`/api/delete/${encodeURIComponent(key)}`, { method: 'DELETE' });
+        const data = await r.json();
+        if (!data.success) {
+            toast('error', `Suppression refusée (${data.aws_code || '403'})`, data.detail || data.error, 8000);
+        } else {
+            toast('success', 'Supprimé', `"${name}" supprimé.`);
+            loadFiles();
+        }
+    } catch(e) {
+        toast('error', 'Erreur réseau', e.message);
+    }
+}
+
+// ── Drag & drop ────────────────────────────────────────────────
+const zone = document.getElementById('uploadZone');
+zone.addEventListener('click', e => { if(e.target.tagName !== 'BUTTON') document.getElementById('fileInput').click(); });
+zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag-over'); });
+zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+zone.addEventListener('drop', e => {
+    e.preventDefault();
+    zone.classList.remove('drag-over');
+    uploadFiles([...e.dataTransfer.files]);
+});
+document.getElementById('fileInput').addEventListener('change', e => uploadFiles([...e.target.files]));
+
+// ── Init ───────────────────────────────────────────────────────
+loadFiles();
+</script>
+
+</body>
+</html>
