@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title th:text="${titre + ' — CRM Coiffeur'}">Client</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+</head>
+<body>
+
+<nav class="navbar">
+    <div class="navbar-brand"><span class="navbar-logo">✂</span><span>CRM Coiffeur</span></div>
+    <ul class="navbar-links">
+        <li><a th:href="@{/}">🏠 Tableau de bord</a></li>
+        <li><a th:href="@{/clients}" class="active">👥 Clients</a></li>
+        <li><a th:href="@{/rendez-vous}">📅 Rendez-vous</a></li>
+    </ul>
+</nav>
+
+<main class="main-content">
+    <div class="page-header">
+        <div class="breadcrumb">
+            <a th:href="@{/clients}">Clients</a> / <span th:text="${titre}">Formulaire</span>
+        </div>
+    </div>
+
+    <div class="card form-card">
+        <div class="card-header"><h2 th:text="${titre}">Formulaire</h2></div>
+        <div class="card-body">
+
+            <form th:action="@{/clients/sauvegarder}" th:object="${client}" method="post">
+                <input type="hidden" th:field="*{id}"/>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="prenom">Prénom *</label>
+                        <input type="text" id="prenom" th:field="*{prenom}"
+                               th:classappend="${#fields.hasErrors('prenom')} ? 'input-error'"
+                               placeholder="Sophie"/>
+                        <span th:if="${#fields.hasErrors('prenom')}" th:errors="*{prenom}" class="field-error"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="nom">Nom *</label>
+                        <input type="text" id="nom" th:field="*{nom}"
+                               th:classappend="${#fields.hasErrors('nom')} ? 'input-error'"
+                               placeholder="Martin"/>
+                        <span th:if="${#fields.hasErrors('nom')}" th:errors="*{nom}" class="field-error"></span>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="telephone">Téléphone *</label>
+                        <input type="tel" id="telephone" th:field="*{telephone}"
+                               th:classappend="${#fields.hasErrors('telephone')} ? 'input-error'"
+                               placeholder="0612345678"/>
+                        <span th:if="${#fields.hasErrors('telephone')}" th:errors="*{telephone}" class="field-error"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" th:field="*{email}"
+                               th:classappend="${#fields.hasErrors('email')} ? 'input-error'"
+                               placeholder="sophie@email.com"/>
+                        <span th:if="${#fields.hasErrors('email')}" th:errors="*{email}" class="field-error"></span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="typeCheveux">Type de cheveux</label>
+                    <select id="typeCheveux" th:field="*{typeCheveux}">
+                        <option value="">— Sélectionner —</option>
+                        <option th:each="type : ${typesCheveux}"
+                                th:value="${type}"
+                                th:text="${type}">type</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="notes">Notes</label>
+                    <textarea id="notes" th:field="*{notes}" rows="3"
+                              placeholder="Allergies, préférences, informations importantes…"></textarea>
+                    <span th:if="${#fields.hasErrors('notes')}" th:errors="*{notes}" class="field-error"></span>
+                </div>
+
+                <div class="form-actions">
+                    <a th:href="@{/clients}" class="btn btn-outline">Annuler</a>
+                    <button type="submit" class="btn btn-primary">💾 Enregistrer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</main>
+
+<footer class="footer"><p>© 2025 CRM Coiffeur</p></footer>
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>

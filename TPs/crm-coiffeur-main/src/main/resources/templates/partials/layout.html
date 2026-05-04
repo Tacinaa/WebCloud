@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title th:text="${titre != null ? titre + ' — CRM Coiffeur' : 'CRM Coiffeur'}">CRM Coiffeur</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+    <div class="navbar-brand">
+        <span class="navbar-logo">✂</span>
+        <span>CRM Coiffeur</span>
+    </div>
+    <ul class="navbar-links">
+        <li><a th:href="@{/}" th:classappend="${#strings.equals(activePage,'dashboard')} ? 'active'">
+            🏠 Tableau de bord
+        </a></li>
+        <li><a th:href="@{/clients}" th:classappend="${#strings.equals(activePage,'clients')} ? 'active'">
+            👥 Clients
+        </a></li>
+        <li><a th:href="@{/rendez-vous}" th:classappend="${#strings.equals(activePage,'rdv')} ? 'active'">
+            📅 Rendez-vous
+        </a></li>
+    </ul>
+</nav>
+
+<!-- CONTENU PRINCIPAL -->
+<main class="main-content">
+
+    <!-- Flash messages -->
+    <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+    <div th:if="${error}"   class="alert alert-error"   th:text="${error}"></div>
+
+    <!-- Fragment de contenu -->
+    <th:block th:fragment="content"></th:block>
+
+</main>
+
+<footer class="footer">
+    <p>© 2025 CRM Coiffeur — Gestion simplifiée de votre salon</p>
+</footer>
+
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>

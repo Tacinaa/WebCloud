@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title th:text="${client.nomComplet + ' — CRM Coiffeur'}">Client</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+</head>
+<body>
+
+<nav class="navbar">
+    <div class="navbar-brand"><span class="navbar-logo">✂</span><span>CRM Coiffeur</span></div>
+    <ul class="navbar-links">
+        <li><a th:href="@{/}">🏠 Tableau de bord</a></li>
+        <li><a th:href="@{/clients}" class="active">👥 Clients</a></li>
+        <li><a th:href="@{/rendez-vous}">📅 Rendez-vous</a></li>
+    </ul>
+</nav>
+
+<main class="main-content">
+    <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+
+    <div class="page-header">
+        <div class="breadcrumb">
+            <a th:href="@{/clients}">Clients</a> /
+            <span th:text="${client.nomComplet}">Nom</span>
+        </div>
+        <div class="header-actions">
+            <a th:href="@{/rendez-vous/nouveau(clientId=${client.id})}" class="btn btn-primary">+ Rendez-vous</a>
+            <a th:href="@{/clients/{id}/modifier(id=${client.id})}" class="btn btn-warning">Modifier</a>
+            <form th:action="@{/clients/{id}/supprimer(id=${client.id})}" method="post"
+                  onsubmit="return confirm('Supprimer ce client ?')">
+                <button type="submit" class="btn btn-danger">Supprimer</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="two-col">
+        <!-- Fiche client -->
+        <div class="card">
+            <div class="card-header"><h2>Informations</h2></div>
+            <div class="card-body">
+                <div class="client-avatar-lg"
+                     th:text="${#strings.substring(client.prenom,0,1) + #strings.substring(client.nom,0,1)}">AB</div>
+                <dl class="info-list">
+                    <dt>Prénom</dt>   <dd th:text="${client.prenom}">Prénom</dd>
+                    <dt>Nom</dt>      <dd th:text="${client.nom}">Nom</dd>
+                    <dt>Téléphone</dt><dd th:text="${client.telephone}">0600000000</dd>
+                    <dt>Email</dt>    <dd th:text="${client.email != null ? client.email : '—'}">email</dd>
+                    <dt>Type de cheveux</dt>
+                    <dd>
+                        <span th:if="${client.typeCheveux}" class="tag" th:text="${client.typeCheveux}">fins</span>
+                        <span th:unless="${client.typeCheveux}">—</span>
+                    </dd>
+                    <dt>Notes</dt>
+                    <dd th:text="${client.notes != null ? client.notes : '—'}">notes</dd>
+                </dl>
+            </div>
+        </div>
+
+        <!-- Historique RDV -->
+        <div class="card">
+            <div class="card-header">
+                <h2>📅 Historique des rendez-vous</h2>
+                <a th:href="@{/rendez-vous/nouveau(clientId=${client.id})}" class="btn btn-primary btn-sm">+ Ajouter</a>
+            </div>
+            <div class="card-body">
+                <div th:if="${#lists.isEmpty(rendezVous)}" class="empty-state">
+                    <p>Aucun rendez-vous pour ce client.</p>
+                </div>
+                <div th:each="rv : ${rendezVous}" class="rdv-item">
+                    <div class="rdv-date">
+                        <span th:text="${#temporals.format(rv.date, 'dd/MM/yyyy')}">date</span>
+                        <span th:text="${rv.heureFormatee}">heure</span>
+                    </div>
+                    <div class="rdv-info">
+                        <strong th:text="${rv.prestation}">Coupe</strong>
+                        <span th:if="${rv.prix != null}" th:text="${rv.prix + ' €'}">0 €</span>
+                    </div>
+                    <span class="badge"
+                          th:classappend="${rv.statutBadgeClass}"
+                          th:text="${rv.statut}">statut</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer class="footer"><p>© 2025 CRM Coiffeur</p></footer>
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>

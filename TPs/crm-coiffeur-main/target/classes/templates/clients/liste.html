@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Clients — CRM Coiffeur</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+</head>
+<body>
+
+<nav class="navbar">
+    <div class="navbar-brand">
+        <span class="navbar-logo">✂</span>
+        <span>CRM Coiffeur</span>
+    </div>
+    <ul class="navbar-links">
+        <li><a th:href="@{/}">🏠 Tableau de bord</a></li>
+        <li><a th:href="@{/clients}" class="active">👥 Clients</a></li>
+        <li><a th:href="@{/rendez-vous}">📅 Rendez-vous</a></li>
+    </ul>
+</nav>
+
+<main class="main-content">
+    <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+
+    <div class="page-header">
+        <h1>👥 Clients</h1>
+        <a th:href="@{/clients/nouveau}" class="btn btn-primary">+ Nouveau client</a>
+    </div>
+
+    <!-- Recherche -->
+    <form th:action="@{/clients}" method="get" class="search-form">
+        <input type="text" name="search" placeholder="Rechercher par nom, téléphone ou email…"
+               th:value="${search}" class="search-input"/>
+        <button type="submit" class="btn btn-primary">🔍 Rechercher</button>
+        <a th:if="${search}" th:href="@{/clients}" class="btn btn-outline">✕ Effacer</a>
+    </form>
+
+    <!-- Tableau -->
+    <div class="card">
+        <div class="card-body">
+            <div th:if="${#lists.isEmpty(clients)}" class="empty-state">
+                <p>Aucun client trouvé.</p>
+                <a th:href="@{/clients/nouveau}" class="btn btn-primary">Ajouter un client</a>
+            </div>
+
+            <table th:if="${!#lists.isEmpty(clients)}" class="table">
+                <thead>
+                    <tr>
+                        <th>Client</th>
+                        <th>Téléphone</th>
+                        <th>Email</th>
+                        <th>Type de cheveux</th>
+                        <th>Notes</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="client : ${clients}">
+                        <td>
+                            <div class="client-cell">
+                                <div class="client-avatar-sm"
+                                     th:text="${#strings.substring(client.prenom,0,1) + #strings.substring(client.nom,0,1)}">AB</div>
+                                <a th:href="@{/clients/{id}(id=${client.id})}"
+                                   th:text="${client.nomComplet}" class="client-link">Nom</a>
+                            </div>
+                        </td>
+                        <td th:text="${client.telephone}">0600000000</td>
+                        <td th:text="${client.email != null ? client.email : '—'}">email</td>
+                        <td>
+                            <span th:if="${client.typeCheveux}" class="tag" th:text="${client.typeCheveux}">fins</span>
+                            <span th:unless="${client.typeCheveux}">—</span>
+                        </td>
+                        <td>
+                            <span th:if="${client.notes}" class="notes-preview"
+                                  th:text="${#strings.abbreviate(client.notes, 40)}">note</span>
+                            <span th:unless="${client.notes}">—</span>
+                        </td>
+                        <td class="actions-cell">
+                            <a th:href="@{/clients/{id}(id=${client.id})}" class="btn btn-outline btn-sm">Voir</a>
+                            <a th:href="@{/clients/{id}/modifier(id=${client.id})}" class="btn btn-warning btn-sm">Modifier</a>
+                            <form th:action="@{/clients/{id}/supprimer(id=${client.id})}" method="post"
+                                  onsubmit="return confirm('Supprimer ce client ?')">
+                                <button type="submit" class="btn btn-danger btn-sm">Supprimer</button>
+                            </form>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</main>
+
+<footer class="footer"><p>© 2025 CRM Coiffeur</p></footer>
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>
