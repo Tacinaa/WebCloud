@@ -1,0 +1,123 @@
+version: "3.9"
+
+# ============================================================
+# docker-compose.yml — Développement local
+# En production AWS, chaque service tourne sur un EC2 dédié
+# ============================================================
+
+services:
+
+  # ── Nginx (Reverse Proxy / Web) ────────────────────────────
+  web:
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    container_name: appcloud-web
+    ports:
+      - "80:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - public-net
+    restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # ── Backend Python Flask ──────────────────────────────────
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: appcloud-backend
+    environment:
+      DB_HOST: postgres
+      DB_PORT: "5432"
+      DB_NAME: appdb
+      DB_USER: appuser
+      DB_PASS: ${DB_PASSWORD:-changeme}
+      SECRET_KEY: ${SECRET_KEY:-dev-secret-key}
+      FLASK_DEBUG: "false"
+      ALLOWED_ORIGINS: "http://localhost,http://web"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - public-net
+      - private-app-net
+    expose:
+      - "5000"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # ── PostgreSQL ─────────────────────────────────────────────
+  postgres:
+    build:
+      context: ./postgres
+      dockerfile: Dockerfile
+    container_name: appcloud-postgres
+    environment:
+      POSTGRES_DB: appdb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_ROOT_PASSWORD:-rootpassword}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - private-db-net
+      - private-app-net
+    expose:
+      - "5432"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d appdb"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+# ── Réseaux (simulent les sous-réseaux AWS) ─────────────────
+networks:
+  public-net:
+    name: appcloud-public
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.1.0/24
+
+  private-app-net:
+    name: appcloud-private-app
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.2.0/24
+
+  private-db-net:
+    name: appcloud-private-db
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.3.0/24
+
+# ── Volumes ─────────────────────────────────────────────────
+volumes:
+  postgres-data:
+    name: appcloud-postgres-data

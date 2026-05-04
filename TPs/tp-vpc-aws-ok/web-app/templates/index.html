@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AppCloud AWS - Accueil</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">🌩️ AppCloud AWS</div>
+        <ul class="nav-links">
+            <li><a href="/" class="active">Accueil</a></li>
+            <li><a href="/articles">Articles</a></li>
+            <li><a href="/contact">Contact</a></li>
+        </ul>
+    </nav>
+
+    <header class="hero">
+        <div class="hero-content">
+            <h1>Application 3-Tiers sur AWS</h1>
+            <p>Architecture sécurisée avec VPC, sous-réseaux isolés, Security Groups et ACL réseau</p>
+            <a href="/articles" class="btn-primary">Voir les articles</a>
+        </div>
+    </header>
+
+    <main class="container">
+        <!-- Stats -->
+        <section class="stats-section">
+            <h2>Statistiques en temps réel</h2>
+            <div class="stats-grid" id="stats">
+                <div class="stat-card">
+                    <span class="stat-number" id="stat-articles">—</span>
+                    <span class="stat-label">Articles publiés</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number" id="stat-contacts">—</span>
+                    <span class="stat-label">Messages reçus</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number" id="stat-categories">—</span>
+                    <span class="stat-label">Catégories</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Architecture -->
+        <section class="arch-section">
+            <h2>Architecture Réseau AWS</h2>
+            <div class="arch-grid">
+                <div class="arch-card public">
+                    <div class="arch-icon">🌐</div>
+                    <h3>Sous-réseau Public</h3>
+                    <p><strong>10.0.1.0/24</strong></p>
+                    <p>EC2 Web (Nginx + Frontend)</p>
+                    <p class="badge-green">Accès Internet ✓</p>
+                </div>
+                <div class="arch-card private-app">
+                    <div class="arch-icon">⚙️</div>
+                    <h3>Sous-réseau Privé App</h3>
+                    <p><strong>10.0.2.0/24</strong></p>
+                    <p>EC2 Backend (Python Flask)</p>
+                    <p class="badge-orange">Accès interne uniquement</p>
+                </div>
+                <div class="arch-card private-db">
+                    <div class="arch-icon">🗄️</div>
+                    <h3>Sous-réseau Privé BDD</h3>
+                    <p><strong>10.0.3.0/24</strong></p>
+                    <p>EC2 PostgreSQL</p>
+                    <p class="badge-red">Isolé — aucun accès externe</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Health -->
+        <section class="health-section">
+            <h2>État du système</h2>
+            <div id="health-status" class="health-card">
+                <p>Vérification en cours...</p>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <p>AppCloud AWS — Architecture 3-Tiers Sécurisée &copy; 2024</p>
+    </footer>
+
+    <script src="/static/js/app.js"></script>
+    <script>
+        loadStats();
+        loadHealth();
+    </script>
+</body>
+</html>

@@ -1,0 +1,41 @@
+version: "3.9"
+
+# ============================================================
+# docker-compose.backend.yml — EC2 Privé App (Sous-réseau privé app)
+# 10.0.2.0/24
+# Déployer sur l'instance EC2-BACKEND
+# ============================================================
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: appcloud-backend
+    ports:
+      - "5000:5000"          # Écoute uniquement sur interface interne (filtré par SG AWS)
+    environment:
+      DB_HOST: ${DB_PRIVATE_IP}             # IP privée EC2-Postgres ex: 10.0.3.10
+      DB_PORT: "5432"
+      DB_NAME: appdb
+      DB_USER: appuser
+      DB_PASS: ${DB_PASSWORD}
+      SECRET_KEY: ${SECRET_KEY}
+      FLASK_DEBUG: "false"
+      ALLOWED_ORIGINS: "http://${WEB_PRIVATE_IP}"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "20m"
+        max-file: "5"
+
+networks:
+  default:
+    name: appcloud-backend-net

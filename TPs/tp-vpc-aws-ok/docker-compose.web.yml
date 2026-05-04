@@ -1,0 +1,30 @@
+version: "3.9"
+
+# ============================================================
+# docker-compose.web.yml — EC2 Public (Sous-réseau public)
+# 10.0.1.0/24
+# Déployer sur l'instance EC2-WEB
+# ============================================================
+
+services:
+  web:
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    container_name: appcloud-web
+    ports:
+      - "80:80"
+    environment:
+      BACKEND_HOST: ${BACKEND_PRIVATE_IP}   # IP privée EC2-Backend ex: 10.0.2.10
+    extra_hosts:
+      - "backend:${BACKEND_PRIVATE_IP}"
+    restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "20m"
+        max-file: "5"
+
+networks:
+  default:
+    name: appcloud-web-net

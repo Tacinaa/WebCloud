@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AppCloud AWS - Contact</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">🌩️ AppCloud AWS</div>
+        <ul class="nav-links">
+            <li><a href="/">Accueil</a></li>
+            <li><a href="/articles">Articles</a></li>
+            <li><a href="/contact" class="active">Contact</a></li>
+        </ul>
+    </nav>
+
+    <div class="page-header">
+        <h1>Contact</h1>
+    </div>
+
+    <main class="container">
+        <section class="form-section contact-section">
+            <h2>Envoyez-nous un message</h2>
+            <div class="form-card">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Nom *</label>
+                        <input type="text" id="contact-nom" placeholder="Votre nom" maxlength="100">
+                    </div>
+                    <div class="form-group">
+                        <label>Email *</label>
+                        <input type="email" id="contact-email" placeholder="votre@email.com" maxlength="150">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Message *</label>
+                    <textarea id="contact-message" rows="6" placeholder="Votre message..."></textarea>
+                </div>
+                <button class="btn-primary" onclick="sendContact()">Envoyer le message</button>
+                <div id="contact-message-result" class="message"></div>
+            </div>
+        </section>
+
+        <section class="info-section">
+            <h2>Informations Architecture</h2>
+            <div class="info-grid">
+                <div class="info-card">
+                    <h3>🔒 Sécurité réseau</h3>
+                    <ul>
+                        <li>VPC isolé (10.0.0.0/16)</li>
+                        <li>3 sous-réseaux distincts</li>
+                        <li>Security Groups restrictifs</li>
+                        <li>Network ACL par couche</li>
+                    </ul>
+                </div>
+                <div class="info-card">
+                    <h3>🌐 Flux autorisés</h3>
+                    <ul>
+                        <li>Internet → Web (80/443)</li>
+                        <li>Web → Backend (5000)</li>
+                        <li>Backend → PostgreSQL (5432)</li>
+                        <li>Pas d'accès direct à la BDD</li>
+                    </ul>
+                </div>
+                <div class="info-card">
+                    <h3>🐳 Conteneurisation</h3>
+                    <ul>
+                        <li>Nginx (reverse proxy)</li>
+                        <li>Flask + Gunicorn (WSGI)</li>
+                        <li>PostgreSQL 16</li>
+                        <li>Docker sur EC2</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <p>AppCloud AWS — Architecture 3-Tiers Sécurisée &copy; 2024</p>
+    </footer>
+
+    <script src="/static/js/app.js"></script>
+</body>
+</html>

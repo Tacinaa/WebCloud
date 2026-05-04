@@ -1,0 +1,43 @@
+version: "3.9"
+
+# ============================================================
+# docker-compose.postgres.yml — EC2 Privé BDD (Sous-réseau privé DB)
+# 10.0.3.0/24
+# Déployer sur l'instance EC2-POSTGRES
+# ============================================================
+
+services:
+  postgres:
+    build:
+      context: ./postgres
+      dockerfile: Dockerfile
+    container_name: appcloud-postgres
+    ports:
+      - "5432:5432"          # Écoute uniquement sur interface interne (filtré par SG AWS)
+    environment:
+      POSTGRES_DB: appdb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_ROOT_PASSWORD}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d appdb"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "20m"
+        max-file: "5"
+
+volumes:
+  postgres-data:
+    name: appcloud-postgres-data
+
+networks:
+  default:
+    name: appcloud-db-net
