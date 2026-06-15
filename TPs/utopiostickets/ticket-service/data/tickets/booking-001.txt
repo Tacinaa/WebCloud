@@ -1,0 +1,9 @@
+=== UTOPIOS TICKET ===
+Booking ID: booking-001
+Customer: Tasnime
+Event ID: 1d42dbef-d62c-491e-ac3e-50d96ed0fbbb
+Event: Concert Ynov
+Location: Paris
+Date: 2026-06-20T20:00:00
+Quantity: 2
+Total amount: 59.98
