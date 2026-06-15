@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: com.utopios.tickets.ticket_service.TicketServiceApplicationTests
+-------------------------------------------------------------------------------
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 2.927 s -- in com.utopios.tickets.ticket_service.TicketServiceApplicationTests

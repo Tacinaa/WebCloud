@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: com.utopios.tickets.report_job.ReportJobApplicationTests
+-------------------------------------------------------------------------------
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.834 s -- in com.utopios.tickets.report_job.ReportJobApplicationTests

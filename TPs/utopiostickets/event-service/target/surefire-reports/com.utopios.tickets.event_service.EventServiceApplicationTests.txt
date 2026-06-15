@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: com.utopios.tickets.event_service.EventServiceApplicationTests
+-------------------------------------------------------------------------------
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 2.818 s -- in com.utopios.tickets.event_service.EventServiceApplicationTests
