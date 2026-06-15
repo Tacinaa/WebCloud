@@ -1,1 +1,7 @@
 D:\Users\Tasnime\Projets\Vscode\WebCloud\TPs\utopiostickets\event-service\src\main\java\com\utopios\tickets\event_service\EventServiceApplication.java
+D:\Users\Tasnime\Projets\Vscode\WebCloud\TPs\utopiostickets\event-service\src\main\java\com\utopios\tickets\event_service\model\Event.java
+D:\Users\Tasnime\Projets\Vscode\WebCloud\TPs\utopiostickets\event-service\src\main\java\com\utopios\tickets\event_service\PingController.java
+D:\Users\Tasnime\Projets\Vscode\WebCloud\TPs\utopiostickets\event-service\src\main\java\com\utopios\tickets\event_service\service\EventService.java
+D:\Users\Tasnime\Projets\Vscode\WebCloud\TPs\utopiostickets\event-service\src\main\java\com\utopios\tickets\event_service\web\CreateEventRequest.java
+D:\Users\Tasnime\Projets\Vscode\WebCloud\TPs\utopiostickets\event-service\src\main\java\com\utopios\tickets\event_service\web\EventController.java
+D:\Users\Tasnime\Projets\Vscode\WebCloud\TPs\utopiostickets\event-service\src\main\java\com\utopios\tickets\event_service\web\ReserveSeatsRequest.java
