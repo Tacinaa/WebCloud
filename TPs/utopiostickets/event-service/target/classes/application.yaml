@@ -1,5 +1,5 @@
 server:
-  port: 8080
+  port: 8081
 
 spring:
   application:
@@ -14,3 +14,9 @@ management:
     health:
       probes:
         enabled: true
+
+aws:
+  region: ${AWS_REGION:eu-west-3}
+  endpoint-override: ${AWS_ENDPOINT_OVERRIDE:}
+  dynamodb:
+    events-table: ${DYNAMODB_EVENTS_TABLE:utopios-events}

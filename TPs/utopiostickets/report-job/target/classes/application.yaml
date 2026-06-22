@@ -1,3 +1,13 @@
 spring:
   application:
     name: report-job
+  main:
+    web-application-type: none
+
+aws:
+  region: ${AWS_REGION:eu-west-3}
+  endpoint-override: ${AWS_ENDPOINT_OVERRIDE:}
+  dynamodb:
+    bookings-table: ${DYNAMODB_BOOKINGS_TABLE:utopios-bookings}
+  s3:
+    reports-bucket: ${S3_REPORTS_BUCKET:utopios-reports-placeholder}

@@ -1,3 +1,31 @@
+server:
+  port: 8083
+
 spring:
   application:
     name: booking-service
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,mappings
+  endpoint:
+    health:
+      probes:
+        enabled: true
+
+services:
+  event-service-url: ${EVENT_SERVICE_URL:http://localhost:8081}
+  ticket-service-url: ${TICKET_SERVICE_URL:http://localhost:8082}
+
+app:
+  http:
+    connect-timeout-ms: 2000
+    read-timeout-ms: 3000
+
+aws:
+  region: ${AWS_REGION:eu-west-3}
+  endpoint-override: ${AWS_ENDPOINT_OVERRIDE:}
+  dynamodb:
+    bookings-table: ${DYNAMODB_BOOKINGS_TABLE:utopios-bookings}

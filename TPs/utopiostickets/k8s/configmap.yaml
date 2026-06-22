@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: utopios-config
+  namespace: utopios
+data:
+  AWS_REGION: "eu-west-3"
+  DYNAMODB_EVENTS_TABLE: "utopios-events"
+  DYNAMODB_BOOKINGS_TABLE: "utopios-bookings"
+  S3_TICKETS_BUCKET: "utopios-tickets-ACCOUNT_ID"
+  S3_REPORTS_BUCKET: "utopios-reports-ACCOUNT_ID"
+  EVENT_SERVICE_URL: "http://event-service.utopios.svc.cluster.local:8081"
+  TICKET_SERVICE_URL: "http://ticket-service.utopios.svc.cluster.local:8082"
+  TICKET_TTL_SECONDS: "900"

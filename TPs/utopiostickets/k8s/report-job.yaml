@@ -1,0 +1,32 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: report-job
+  namespace: utopios
+spec:
+  schedule: "0 2 * * *"   # Daily at 02:00 UTC — override via REPORT_CRON env var if needed
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 2
+      template:
+        spec:
+          restartPolicy: Never
+          containers:
+            - name: report-job
+              image: utopios/report-job:latest
+              imagePullPolicy: Never
+              envFrom:
+                - configMapRef:
+                    name: utopios-config
+                - secretRef:
+                    name: aws-credentials
+              resources:
+                requests:
+                  memory: "256Mi"
+                  cpu: "100m"
+                limits:
+                  memory: "512Mi"
+                  cpu: "500m"

@@ -1,1 +1,10 @@
+com\utopios\tickets\booking_service\service\BookingService.class
+com\utopios\tickets\booking_service\web\CreateBookingRequest.class
+com\utopios\tickets\booking_service\web\TicketResponse.class
+com\utopios\tickets\booking_service\config\RestClientConfig.class
+com\utopios\tickets\booking_service\model\Booking.class
+com\utopios\tickets\booking_service\web\BookingController.class
+com\utopios\tickets\booking_service\web\ReserveSeatsRequest.class
 com\utopios\tickets\booking_service\BookingServiceApplication.class
+com\utopios\tickets\booking_service\web\EventDto.class
+com\utopios\tickets\booking_service\web\GenerateTicketRequest.class
